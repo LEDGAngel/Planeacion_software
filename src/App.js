@@ -1,40 +1,61 @@
 //import logo from './logo.svg';
 import './App.css';
-import { useState } from "react";
-import Header from './Componentes/Header';
-import Footer from './Componentes/Footer';
-import Boton from './Componentes/Boton';
+import { useEffect, useState } from "react";
+// import Header from './Componentes/Header';
+// import Footer from './Componentes/Footer';
+// import Boton from './Componentes/Boton';
 import Lista from './Componentes/Lista';
 import Add from './Componentes/add';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import ResponsiveAppBar from './Componentes/appbar';
-import CredentialsSignInPage from './Componentes/login';
+// import CredentialsSignInPage from './Componentes/login';
 import PaginaInicio from './Componentes/paginaInicio';
 import Login from './Componentes/login';
 
 
 function App() {
-  const [items, setItems] = useState([{id: 1, name: "item1", price: 1}, {id: 2, name: "item2", price: 2}, {id: 3, name: "item3", price: 3}])
-  let [count, setCount] =  useState(0);
+  const [items, setItems] = useState([])
+  // let [count, setCount] =  useState(0);
   const [isLogin, setIsLogin] = useState(false);
-  const sum = () => {
-    setCount(count + 1);
+  useEffect(() => {
+    if(isLogin)
+      {
+        getItems();
+      }
+  }, [isLogin]);
+  const getItems = async () => {
+    const result = await fetch("http://localhost:5001/items/");
+    const data = await result.json();
+    setItems(data);
+  }
+  // const sum = () => {
+  //   setCount(count + 1);
+  // };
+  // const resta = () => {
+  //   setCount(count - 1);
+  // };
+  const add = async (item) => {
+    //item.id = items.length + 1;
+    const result = await fetch("http://localhost:5001/items/", {method:"POST", headers:{"content-type":"application/json"}, body: JSON.stringify(item),
+    });
+    const data = await result.json();
+    setItems([...items, data.item]);
   };
-  const resta = () => {
-    setCount(count - 1);
-  };
-  const add = (item) => {
-    item.id = items.length + 1;
-    setItems([...items, item]);
-  };
-  const del = (id) => {
+  const del = async (id) => {
+    await fetch("http://localhost:5001/items/"+id, { method: "DELETE"});
     setItems(items.filter((item) => item.id !== id))
   };
-  const setlogin = (user) => {
-    if(user.username === "luis" && user.password === "123"){
-      setIsLogin(true);
-    }
-    return isLogin;
+  const setlogin = async (user) => {
+    const result = await fetch("http://localhost:5001/login/", {method:"POST", headers:{"content-type":"application/json"}, body: JSON.stringify(user),
+    });
+    const data = await result.json();
+    setIsLogin(data.isLogin);
+    return data.isLogin;
+
+    // if(user.username === "luis04" && user.password === "lui$23"){
+    //   setIsLogin(true);
+    // }
+    // return isLogin;
   }
   const setlogout = () => {
     setIsLogin(false);

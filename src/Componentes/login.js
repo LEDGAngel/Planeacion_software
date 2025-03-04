@@ -35,11 +35,13 @@ const Login = ({login}) => {
       >
         <TextField label= {"Username"}
         value={username}
-        onChange= {(e) => setUsername(e.target.value)}/>
+        onChange= {(e) => setUsername(e.target.value)}
+        margin="normal"/>
         <TextField label= {"Password"} 
           type= {"password"}
           value={password}
-          onChange= {(e) => setPassword(e.target.value)}/>
+          onChange= {(e) => setPassword(e.target.value)}
+          margin="normal"/>
         <Button type={"submit"} variant="contained">
           Login 
         </Button>
