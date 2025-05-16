@@ -12,6 +12,8 @@ import ResponsiveAppBar from './Componentes/appbar';
 import PaginaInicio from './Componentes/paginaInicio';
 import Login from './Componentes/login';
 
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+
 
 function App() {
   const [items, setItems] = useState([])
@@ -25,7 +27,7 @@ function App() {
       }
   }, [isLogin]);
   const getItems = async () => {
-    const result = await fetch("http://localhost:5000/items/", {method:"GET", headers: {"Authorization":auth},
+    const result = await fetch(API_URL + "/items/", {method:"GET", headers: {"Authorization":auth},
   });
     const data = await result.json();
     setItems(data);
@@ -38,17 +40,17 @@ function App() {
   // };
   const add = async (item) => {
     //item.id = items.length + 1;
-    const result = await fetch("http://localhost:5000/items/", {method:"POST", headers:{"content-type":"application/json", "Authorization":auth}, body: JSON.stringify(item),
+    const result = await fetch(API_URL + "/items/", {method:"POST", headers:{"content-type":"application/json", "Authorization":auth}, body: JSON.stringify(item),
     });
     const data = await result.json();
     setItems([...items, data.item]);
   };
   const del = async (id) => {
-    await fetch("http://localhost:5000/items/"+id, { method: "DELETE", headers: {"Authorization":auth},});
+    await fetch(API_URL + "/items/"+id, { method: "DELETE", headers: {"Authorization":auth},});
     setItems(items.filter((item) => item.id !== id))
   };
   const setlogin = async (user) => {
-    const result = await fetch("http://localhost:5000/login/", {method:"POST", headers:{"content-type":"application/json"}, body: JSON.stringify(user),
+    const result = await fetch(API_URL +"/login/", {method:"POST", headers:{"content-type":"application/json"}, body: JSON.stringify(user),
     });
     const data = await result.json();
     setIsLogin(data.isLogin);
