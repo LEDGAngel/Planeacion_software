@@ -11,76 +11,50 @@ import ResponsiveAppBar from './Componentes/appbar';
 // import CredentialsSignInPage from './Componentes/login';
 import PaginaInicio from './Componentes/paginaInicio';
 import Login from './Componentes/login';
+import ItemInfo from './Componentes/ItemInfo';
+import LifeCycle from './Pages/lifeCycle';
+import { AuthProvider, useAuth } from './hooks/useAuth';
+import useItems from './hooks/useItems';
 
-const API_URL = process.env.REACT_APP_API_URL;
-
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
 function App() {
-  const [items, setItems] = useState([])
-  const [auth, setAuth] = useState("")
-  // let [count, setCount] =  useState(0);
-  const [isLogin, setIsLogin] = useState(false);
-  useEffect(() => {
-    if(isLogin)
-      {
-        getItems();
-      }
-  }, [isLogin]);
-  const getItems = async () => {
-    const result = await fetch(API_URL + "/items/", {method:"GET", headers: {"Authorization":auth},
-  });
-    const data = await result.json();
-    setItems(data);
-  }
-  // const sum = () => {
-  //   setCount(count + 1);
-  // };
-  // const resta = () => {
-  //   setCount(count - 1);
-  // };
-  const add = async (item) => {
-    //item.id = items.length + 1;
-    const result = await fetch(API_URL + "/items/", {method:"POST", headers:{"content-type":"application/json", "Authorization":auth}, body: JSON.stringify(item),
-    });
-    const data = await result.json();
-    setItems([...items, data.item]);
-  };
-  const del = async (id) => {
-    await fetch(API_URL + "/items/"+id, { method: "DELETE", headers: {"Authorization":auth},});
-    setItems(items.filter((item) => item.id !== id))
-  };
-  const setlogin = async (user) => {
-    const result = await fetch(API_URL +"/login/", {method:"POST", headers:{"content-type":"application/json"}, body: JSON.stringify(user),
-    });
-    const data = await result.json();
-    setIsLogin(data.isLogin);
-    setAuth(data.token);
-    return data.isLogin;
+  const [show, setShow] = useState(false);
+  const { items, add, del } = useItems();
+  const { auth, isLogin, login, logout } = useAuth();
 
-    // if(user.username === "luis04" && user.password === "lui$23"){
-    //   setIsLogin(true);
-    // }
-    // return isLogin;
-  }
-  const setlogout = () => {
-    setIsLogin(false);
-  } 
+  // Nuevo login handler
+  const handleLogin = async (user) => {
+    const result = await fetch(API_URL + "/login/", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(user),
+    });
+    const data = await result.json();
+    if (data.isLogin) {
+      login(data.token);
+    }
+    return data.isLogin;
+  };
   //const nombre = "Luis Guzman";
   //const elemento = <h1> Hello, {nombre}</h1>;
   return (
     <div>
        <BrowserRouter>
-       {isLogin && <ResponsiveAppBar setlogout = {setlogout} />}
+       {isLogin && <ResponsiveAppBar setlogout = {logout} />}
         {/* <Header/> */}
         {/* <PaginaInicio/> */}
         <Routes>
-          <Route path="/" element={<Login login={setlogin} />} />
+          <Route path="/" element={<Login login={handleLogin} />} />
           <Route path="/inicio" element={<PaginaInicio/>} />
           <Route path="/add" element={<Add add={add} />} />
           <Route path="/items" element={<Lista items={items} ondelete={del} />} />
+          <Route path="/items/:id" element={<ItemInfo items={items}/>} />
         </Routes>
         {/* <Footer/> */}
        </BrowserRouter>
+       <button onClick={() => setShow(!show)}> {show ? "Hide" : "Show"} </button>
+       {show && <LifeCycle/>}
       
       {/* {count}
       <Boton name={"suma"} 
